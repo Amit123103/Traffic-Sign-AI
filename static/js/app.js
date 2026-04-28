@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initUpload();
     initWebcam();
-    initVideo();
     initAnalytics();
     initAdmin();
 });

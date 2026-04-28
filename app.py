@@ -107,17 +107,25 @@ def api_detect_image():
                 "annotated_url": annotated_url
             })
         else:
-            return jsonify({"success": False, "error": "Detection failed"}), 500
+            return jsonify({
+                "success": False, 
+                "error": "Detection engine unavailable. Please ensure the model is trained and placed in the /models directory."
+            }), 503
             
     return jsonify({"error": "File type not allowed"}), 400
 
 @app.route('/api/detect/video', methods=['POST'])
 def api_detect_video():
-    if 'video' not in request.files:
-        return jsonify({"error": "No video uploaded"}), 400
-    
     file = request.files['video']
     if file and allowed_file(file.filename, config.ALLOWED_VIDEO_EXTENSIONS):
+        # Check if model exists
+        from detect import load_traffic_model
+        if load_traffic_model() is None:
+            return jsonify({
+                "success": False, 
+                "error": "Detection engine unavailable. Please ensure the model is trained."
+            }), 503
+
         filename = secure_filename(f"{uuid.uuid4()}_{file.filename}")
         filepath = config.UPLOADS_DIR / filename
         file.save(str(filepath))
