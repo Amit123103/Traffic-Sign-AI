@@ -163,45 +163,149 @@ async function speak(classId, lang) {
 // --- Webcam Logic ---
 
 function initWebcam() {
+    const video = document.getElementById('webcam-video');
+    const canvas = document.getElementById('webcam-canvas');
     const captureBtn = document.getElementById('capture-frame');
-    if (!captureBtn) return;
-
-    captureBtn.addEventListener('click', async () => {
-        // In this mock, we just trigger a flash and toast
-        // A real implementation would pull from the canvas
-        const flash = document.querySelector('.capture-flash');
-        flash.classList.remove('hidden');
-        setTimeout(() => flash.classList.add('hidden'), 100);
-        showToast('Frame captured to database', 'success');
-        
-        const countEl = document.getElementById('session-count');
-        countEl.textContent = parseInt(countEl.textContent) + 1;
-    });
-}
-
-// --- Video Processing ---
-
-function startVideoPolling(taskId) {
-    const statusCard = document.getElementById('video-status-card');
-    const uploadCard = document.getElementById('video-upload-card');
+    const signNameEl = document.getElementById('live-sign-name');
+    const gaugeBar = document.querySelector('.gauge-bar');
     
-    uploadCard.classList.add('hidden');
-    statusCard.classList.remove('hidden');
+    if (!video || !canvas) return;
 
-    const interval = setInterval(async () => {
-        const res = await fetch(`/api/video/status/${taskId}`);
-        const data = await res.json();
-        
-        if (data.status === 'completed') {
-            clearInterval(interval);
-            showVideoResult(data.result);
-            document.getElementById('loading-overlay').classList.add('hidden');
-        } else if (data.status === 'processing') {
-            // Update progress if available
-            document.getElementById('video-progress').style.width = '50%'; // Simplified
-            document.getElementById('progress-text').textContent = 'Analyzing Neural Layers... 50%';
+    let stream = null;
+    let isNightMode = false;
+    let lastPrediction = null;
+
+    // Start Webcam
+    async function startCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
+            });
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                video.play();
+                startInferenceLoop();
+            };
+        } catch (err) {
+            console.error("Camera error:", err);
+            showToast("Failed to access camera", "error");
+            signNameEl.textContent = "Camera Error";
         }
-    }, 2000);
+    }
+
+    // Capture frame and send to server
+    async function startInferenceLoop() {
+        const context = canvas.getContext('2d');
+        
+        const runInference = async () => {
+            if (video.paused || video.ended) return;
+
+            // Set canvas size to video size
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert to blob
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('image', blob, 'webcam.jpg');
+                if (isNightMode) formData.append('night_mode', 'true');
+
+                try {
+                    const res = await fetch('/api/detect/image', { method: 'POST', body: formData });
+                    const data = await res.json();
+                    
+                    if (data.success && data.prediction) {
+                        lastPrediction = data.prediction;
+                        updateHUD(data.prediction);
+                    }
+                } catch (err) {
+                    console.error("Inference loop error:", err);
+                }
+                
+                // Continue loop
+                setTimeout(runInference, 1000); // 1 FPS for server safety
+            }, 'image/jpeg', 0.7);
+        };
+
+        runInference();
+    }
+
+    function updateHUD(pred) {
+        if (!signNameEl) return;
+        
+        if (pred.class_id === -1) {
+            signNameEl.textContent = "Scanning...";
+            gaugeBar.style.width = '0%';
+            return;
+        }
+
+        signNameEl.textContent = pred.class_name;
+        const conf = Math.round(pred.confidence * 100);
+        gaugeBar.style.width = `${conf}%`;
+        gaugeBar.style.backgroundColor = pred.color;
+        
+        if (pred.confidence > 0.8) {
+            // Add to session history if new
+            addHistoryItem(pred);
+        }
+    }
+
+    function addHistoryItem(pred) {
+        const list = document.getElementById('session-history-list');
+        if (!list) return;
+        
+        // Only add if different from last item to avoid duplicates
+        if (list.firstChild && list.firstChild.dataset.id == pred.class_id) return;
+
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.dataset.id = pred.class_id;
+        item.innerHTML = `
+            <span class="time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
+            <span class="name" style="color: ${pred.color}">${pred.class_name}</span>
+        `;
+        list.prepend(item);
+        if (list.children.length > 5) list.lastChild.remove();
+    }
+
+    // Toggle Night Mode
+    const nightBtn = document.getElementById('toggle-night-mode');
+    if (nightBtn) {
+        nightBtn.addEventListener('click', () => {
+            isNightMode = !isNightMode;
+            nightBtn.classList.toggle('active');
+            showToast(`Night Mode ${isNightMode ? 'ON' : 'OFF'}`, 'info');
+        });
+    }
+
+    // Capture Button
+    captureBtn.addEventListener('click', async () => {
+        if (!lastPrediction || lastPrediction.class_id === -1) {
+            showToast('No sign detected to capture', 'error');
+            return;
+        }
+
+        const response = await fetch('/api/webcam/capture', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lastPrediction)
+        });
+
+        if (response.ok) {
+            const flash = document.querySelector('.capture-flash');
+            if (flash) {
+                flash.classList.remove('hidden');
+                setTimeout(() => flash.classList.add('hidden'), 100);
+            }
+            showToast('Frame captured to database', 'success');
+            
+            const countEl = document.getElementById('session-count');
+            if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
+        }
+    });
+
+    startCamera();
 }
 
 function showVideoResult(result) {

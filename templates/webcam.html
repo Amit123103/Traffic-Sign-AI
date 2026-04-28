@@ -9,7 +9,8 @@
 <div class="webcam-layout">
     <div class="card video-card">
         <div class="video-container">
-            <img id="webcam-stream" src="{{ url_for('api_webcam_stream') }}" alt="Webcam Feed">
+            <video id="webcam-video" autoplay playsinline alt="Webcam Feed"></video>
+            <canvas id="webcam-canvas" class="hidden"></canvas>
             <div class="scanline"></div>
             <div class="overlay-corners">
                 <div class="corner top-left"></div>
