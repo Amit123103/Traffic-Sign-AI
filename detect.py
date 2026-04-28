@@ -118,7 +118,7 @@ def detect_from_frame(frame, night_mode=False):
     return prediction, annotated_frame
 
 def detect_from_video(video_path, output_filename):
-    """Process video file and save annotated version."""
+    """Process video file with frame skipping and memory optimization."""
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
         return None
@@ -135,26 +135,35 @@ def detect_from_video(video_path, output_filename):
 
     processed_frames = 0
     detections = []
+    frame_count = 0
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-        
-        prediction, annotated_frame = detect_from_frame(frame)
-        out.write(annotated_frame)
-        
-        if prediction and prediction['class_id'] != -1:
-            detections.append(prediction)
+    try:
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
             
-        processed_frames += 1
-        # In a real app, you might want to send progress updates here via a callback
-
-    cap.release()
-    out.release()
+            # Analyze every 3rd frame for speed and memory efficiency
+            if frame_count % 3 == 0:
+                prediction, annotated_frame = detect_from_frame(frame)
+                if prediction and prediction['class_id'] != -1:
+                    detections.append(prediction)
+            else:
+                annotated_frame = frame
+                
+            out.write(annotated_frame)
+            frame_count += 1
+            processed_frames = frame_count
+            
+    finally:
+        cap.release()
+        out.release()
+        # Memory management: Clear Keras session to free RAM
+        tf.keras.backend.clear_session()
     
     return {
         "output_url": f"/static/processed/{output_filename}",
         "total_frames": total_frames,
-        "detection_count": len(detections)
+        "detection_count": len(detections),
+        "processed_frames": processed_frames
     }

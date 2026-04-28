@@ -136,9 +136,12 @@ def api_detect_video():
         # Start background processing
         def process_video_task(tid, path, out_name):
             video_tasks[tid] = {"status": "processing", "progress": 0}
+            # Note: For real progress, we would need to pass a callback to detect_from_video
+            # For now, we simulate progress or just mark as processing
             result = detect_from_video(path, out_name)
             video_tasks[tid] = {"status": "completed", "result": result}
-            add_log("INFO", f"Video processing completed: {out_name}", "/api/detect/video")
+            from utils.database import add_log
+            add_log("INFO", f"Video analysis complete: {out_name}", "/api/detect/video")
 
         thread = threading.Thread(target=process_video_task, args=(task_id, filepath, output_filename))
         thread.start()
