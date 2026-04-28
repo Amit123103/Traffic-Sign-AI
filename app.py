@@ -3,6 +3,7 @@ import uuid
 import time
 import cv2
 import threading
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from flask import Flask, render_template, request, jsonify, Response, send_file, url_for
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
