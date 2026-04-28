@@ -234,9 +234,14 @@ function initWebcam() {
     function updateHUD(pred) {
         if (!signNameEl) return;
         
+        const focusBox = document.querySelector('.focus-box');
+        const focusLabel = document.querySelector('.focus-label');
+
         if (pred.class_id === -1) {
             signNameEl.textContent = "Scanning...";
             gaugeBar.style.width = '0%';
+            if (focusBox) focusBox.style.borderColor = 'rgba(0, 255, 255, 0.5)';
+            if (focusLabel) focusLabel.textContent = "SCANNING...";
             return;
         }
 
@@ -245,8 +250,14 @@ function initWebcam() {
         gaugeBar.style.width = `${conf}%`;
         gaugeBar.style.backgroundColor = pred.color;
         
+        // Update Focus Box
+        if (focusBox) focusBox.style.borderColor = pred.color;
+        if (focusLabel) {
+            focusLabel.textContent = `${pred.class_name} (${conf}%)`;
+            focusLabel.style.backgroundColor = pred.color;
+        }
+
         if (pred.confidence > 0.8) {
-            // Add to session history if new
             addHistoryItem(pred);
         }
     }
