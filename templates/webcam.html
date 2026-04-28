@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="orbitron neon-text">Live Neural Stream</h1>
+    <p>Real-time traffic sign classification from system camera</p>
+</div>
+
+<div class="webcam-layout">
+    <div class="card video-card">
+        <div class="video-container">
+            <img id="webcam-stream" src="{{ url_for('api_webcam_stream') }}" alt="Webcam Feed">
+            <div class="scanline"></div>
+            <div class="overlay-corners">
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+            </div>
+        </div>
+        <div class="video-controls">
+            <button id="toggle-night-mode" class="btn btn-outline">
+                <i class="fas fa-moon"></i> Night Mode
+            </button>
+            <button id="capture-frame" class="btn btn-accent">
+                <i class="fas fa-camera"></i> Capture Frame
+            </button>
+        </div>
+    </div>
+
+    <div class="card status-card">
+        <h3 class="orbitron">Inference HUD</h3>
+        
+        <div class="hud-item">
+            <span class="label">System Status:</span>
+            <span class="value neon-text">ACTIVE</span>
+        </div>
+        
+        <div id="live-prediction-panel">
+            <div class="prediction-box">
+                <div id="live-sign-name" class="orbitron">Detecting...</div>
+                <div id="live-confidence-gauge" class="gauge">
+                    <div class="gauge-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="session-stats">
+                <div class="stat-row">
+                    <span>Session Detections:</span>
+                    <span id="session-count" class="mono">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Avg Latency:</span>
+                    <span id="session-latency" class="mono">32ms</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="capture-flash hidden"></div>
+        
+        <div class="history-mini-feed">
+            <h4 class="mono">Session History</h4>
+            <div id="session-history-list" class="mini-list">
+                <!-- Session items added here via JS -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="orbitron neon-text">System Administration</h1>
+    <p>Core grid management, database maintenance, and logs</p>
+</div>
+
+<div class="admin-grid">
+    <!-- Controls -->
+    <div class="card admin-controls">
+        <h3 class="orbitron">Core Controls</h3>
+        <div class="btn-group">
+            <button class="btn btn-primary" id="export-csv">
+                <i class="fas fa-file-export"></i> Export History (CSV)
+            </button>
+            <button class="btn btn-danger" id="clear-history">
+                <i class="fas fa-trash-alt"></i> Wipe All History
+            </button>
+            <a href="/api/health" target="_blank" class="btn btn-outline">
+                <i class="fas fa-heartbeat"></i> Health Check
+            </a>
+        </div>
+        
+        <div class="db-stats">
+            <div class="stat-row">
+                <span>Database Size:</span>
+                <span id="db-size" class="mono">-- MB</span>
+            </div>
+            <div class="stat-row">
+                <span>Total Records:</span>
+                <span id="db-records" class="mono">--</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="card history-card wide">
+        <div class="card-header">
+            <h3 class="orbitron">Detection Archive</h3>
+            <div class="table-filters">
+                <input type="text" id="history-search" placeholder="Search by sign name..." class="mono">
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Timestamp</th>
+                        <th>Source</th>
+                        <th>Class Name</th>
+                        <th>Conf</th>
+                        <th>Latency</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-history-body">
+                    <!-- Paginated content -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <button id="prev-page" class="btn-icon"><i class="fas fa-chevron-left"></i></button>
+            <span id="page-info">Page 1 of 1</span>
+            <button id="next-page" class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Logs Viewer -->
+    <div class="card logs-card wide">
+        <h3 class="orbitron">Neural Grid Logs</h3>
+        <div class="logs-container mono" id="system-logs">
+            <!-- Color-coded logs -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal for confirmation -->
+<div id="confirm-modal" class="modal hidden">
+    <div class="modal-content">
+        <h2 class="orbitron neon-text-pink">SECURITY WARNING</h2>
+        <p>Are you sure you want to permanently delete all detection history? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button id="confirm-delete" class="btn btn-danger">WIPE DATA</button>
+            <button id="cancel-delete" class="btn btn-outline">CANCEL</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

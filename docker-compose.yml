@@ -1,0 +1,18 @@
+
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - ./static/uploads:/app/static/uploads
+      - ./static/processed:/app/static/processed
+      - ./static/audio:/app/static/audio
+      - ./models:/app/models
+    environment:
+      - FLASK_DEBUG=true
+      - SECRET_KEY=tsrs-dev-secret-key-12345
+      - DATABASE_URL=sqlite:////app/traffic_signs.db
+    restart: always

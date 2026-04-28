@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# ML/Data
+dataset/
+models/*.h5
+models/*.tflite
+logs/
+training_history.png
+confusion_matrix.png
+classification_report.txt
+model_summary.txt
+
+# App Data
+static/uploads/*
+static/processed/*
+static/audio/*
+!static/uploads/.gitkeep
+!static/processed/.gitkeep
+!static/audio/.gitkeep
+traffic_signs.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-content">
+        <h1 class="orbitron neon-text">TrafficSign AI <span class="version">v2.0</span></h1>
+        <p class="subtitle">Next-gen Computer Vision for Autonomous Infrastructure</p>
+    </div>
+</section>
+
+<div class="dashboard-grid">
+    <!-- Quick Upload Section -->
+    <div class="card upload-card">
+        <h3 class="orbitron"><i class="fas fa-upload neon-text"></i> Quick Analysis</h3>
+        <div id="drop-zone" class="drop-zone">
+            <input type="file" id="file-input" hidden accept="image/*">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drag & Drop or <span class="highlight">Browse</span></p>
+            <span class="file-info">Supports JPG, PNG, WEBP</span>
+        </div>
+        <div class="quick-actions">
+            <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                <i class="fas fa-file-image"></i> Select Image
+            </button>
+            <a href="/webcam" class="btn btn-accent">
+                <i class="fas fa-video"></i> Start Webcam
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="card stats-card">
+        <h3 class="orbitron"><i class="fas fa-tachometer-alt neon-text"></i> Live Grid Stats</h3>
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="label">Total Detections</span>
+                <span class="value neon-text">{{ stats.total }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Detected Today</span>
+                <span class="value neon-text-pink">{{ stats.today }}</span>
+            </div>
+        </div>
+        <div class="stat-item large">
+            <span class="label">Most Frequent Sign</span>
+            <span class="value">{{ stats.most_common }}</span>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card recent-card">
+        <h3 class="orbitron"><i class="fas fa-history neon-text"></i> Neural Feed</h3>
+        <div class="feed-container" id="recent-feed">
+            {% for detection in stats.recent %}
+            <div class="feed-item">
+                <div class="feed-time mono">{{ detection.timestamp.split('T')[1][:8] }}</div>
+                <div class="feed-info">
+                    <span class="feed-name">{{ detection.class_name }}</span>
+                    <span class="feed-conf">{{ (detection.confidence * 100)|round(1) }}%</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="card feature-grid-card">
+        <h3 class="orbitron">Core Protocols</h3>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <i class="fas fa-bolt"></i>
+                <p>Real-time < 50ms</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-language"></i>
+                <p>Hindi TTS Alerts</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-moon"></i>
+                <p>Night Mode Opt</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-microchip"></i>
+                <p>MobileNetV2 Core</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-file-csv"></i>
+                <p>Data Export</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-chart-pie"></i>
+                <p>Neural Analytics</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

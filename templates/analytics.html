@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="orbitron neon-text">Neural Grid Analytics</h1>
+    <p>Comprehensive system performance and detection trends</p>
+</div>
+
+<div class="analytics-grid">
+    <!-- Top Stats -->
+    <div class="stat-cards-row">
+        <div class="card stat-card-mini">
+            <i class="fas fa-database neon-text"></i>
+            <div class="info">
+                <span class="label">Total Detections</span>
+                <span id="total-val" class="value">0</span>
+            </div>
+        </div>
+        <div class="card stat-card-mini">
+            <i class="fas fa-calendar-day neon-text-pink"></i>
+            <div class="info">
+                <span class="label">Today's Load</span>
+                <span id="today-val" class="value">0</span>
+            </div>
+        </div>
+        <div class="card stat-card-mini">
+            <i class="fas fa-bullseye neon-text"></i>
+            <div class="info">
+                <span class="label">Avg Confidence</span>
+                <span id="avg-conf-val" class="value">0%</span>
+            </div>
+        </div>
+        <div class="card stat-card-mini">
+            <i class="fas fa-microchip neon-text-pink"></i>
+            <div class="info">
+                <span class="label">Processing Time</span>
+                <span id="avg-time-val" class="value">0ms</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-row">
+        <div class="card chart-card wide">
+            <h3 class="orbitron">Detections Timeline (30 Days)</h3>
+            <div class="chart-container">
+                <canvas id="timeline-chart"></canvas>
+            </div>
+        </div>
+        <div class="card chart-card">
+            <h3 class="orbitron">Category Distribution</h3>
+            <div class="chart-container">
+                <canvas id="category-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="charts-row">
+        <div class="card chart-card">
+            <h3 class="orbitron">Top 10 Detected Signs</h3>
+            <div class="chart-container">
+                <canvas id="top-signs-chart"></canvas>
+            </div>
+        </div>
+        <div class="card table-card">
+            <h3 class="orbitron">Recent Activity Log</h3>
+            <div class="table-wrapper">
+                <table id="recent-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Sign Name</th>
+                            <th>Confidence</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-table-body">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

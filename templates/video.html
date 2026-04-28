@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="orbitron neon-text">Temporal Analysis</h1>
+    <p>Upload video files for frame-by-frame neural processing</p>
+</div>
+
+<div class="video-processing-container">
+    <div class="card upload-section" id="video-upload-card">
+        <div class="video-drop-zone" id="video-drop-zone">
+            <i class="fas fa-film"></i>
+            <p>Drop Video File (MP4, AVI, MOV)</p>
+            <button class="btn btn-primary" onclick="document.getElementById('video-input').click()">
+                Select Video
+            </button>
+            <input type="file" id="video-input" hidden accept="video/*">
+        </div>
+    </div>
+
+    <div class="card processing-status hidden" id="video-status-card">
+        <h3 class="orbitron">Processing Grid...</h3>
+        <div class="progress-container">
+            <div class="progress-bar-wrapper">
+                <div id="video-progress" class="progress-bar" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="mono">Initializing Neural Layers... 0%</p>
+        </div>
+        <div class="log-output mono" id="processing-logs">
+            <p>> Starting background task...</p>
+        </div>
+    </div>
+
+    <div class="card result-section hidden" id="video-result-card">
+        <div class="video-split">
+            <div class="video-player-box">
+                <h4 class="orbitron">Processed Output</h4>
+                <video id="processed-video" controls>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="video-stats-box">
+                <h4 class="orbitron">Frame Statistics</h4>
+                <div class="stat-item">
+                    <span class="label">Total Frames:</span>
+                    <span id="total-frames" class="value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Signs Detected:</span>
+                    <span id="total-detections" class="value">0</span>
+                </div>
+                <button id="download-video" class="btn btn-accent btn-full">
+                    <i class="fas fa-download"></i> Download Video
+                </button>
+                <button onclick="location.reload()" class="btn btn-outline btn-full">
+                    <i class="fas fa-undo"></i> Reset Task
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
