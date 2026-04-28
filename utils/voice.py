@@ -5,9 +5,13 @@ import pyttsx3
 from pathlib import Path
 from config import AUDIO_DIR
 
-# Initialize offline TTS engine
-engine = pyttsx3.init()
-engine.setProperty('rate', 150)
+# Initialize offline TTS engine (graceful fallback)
+try:
+    engine = pyttsx3.init()
+    engine.setProperty('rate', 150)
+except Exception as e:
+    print(f"Offline TTS (pyttsx3) initialization failed: {e}")
+    engine = None
 
 def get_audio_filename(text, lang):
     """Generate a unique filename based on text and language."""
@@ -29,13 +33,15 @@ def speak_english(text):
     except Exception as e:
         print(f"gTTS English error: {e}. Falling back to offline TTS.")
         # Offline fallback doesn't easily save to MP3 in a cross-platform way 
-        # without additional libraries, but we can try:
-        try:
-            engine.save_to_file(text, str(filepath))
-            engine.runAndWait()
-            return f"/static/audio/{filename}"
-        except:
-            return None
+        # without additional libraries, but we can try if engine is available:
+        if engine:
+            try:
+                engine.save_to_file(text, str(filepath))
+                engine.runAndWait()
+                return f"/static/audio/{filename}"
+            except:
+                return None
+        return None
 
 def speak_hindi(text):
     """Generate or retrieve Hindi TTS audio."""
