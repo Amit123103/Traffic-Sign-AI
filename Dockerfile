@@ -30,4 +30,4 @@ ENV TF_CPP_MIN_LOG_LEVEL=3
 ENV PORT=5000
 
 # Command to run the application (using $PORT for Render)
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 app:app
